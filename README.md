@@ -1,5 +1,5 @@
 # Coefficients of fractionnal parentage
-==================
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10700966.svg)](https://doi.org/10.5281/zenodo.10700966)
 
 An open source database compiled from Dobromir D. Velkov PhD thesis. The database was constructed by a Python 3 script designed to extract consistently the listed tables from the source PDF. 

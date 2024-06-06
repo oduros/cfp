@@ -51,6 +51,9 @@ def read_seniority(conf, term):
 def phase_bf(v):
     return 1 if v in [0,1,4,5,8,9,12,13,16,17] else -1
 
+def C_ME(k,l,lprime=None):
+    if lprime is None: lprime = l
+    return wigner_3j(l, k, lprime, 0, 0, 0)*(-1)**l*sqrt((2*l+1)*(2*lprime+1), evaluate = False)
 def U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2, alpha1, alpha2):
     term, term_prime = f'{twoSplusOne1}{L1}{alpha1}', f'{twoSplusOne2}{L2}{alpha2}' #creates strings to search for the two desired terms of the l^n configuration in the CFP database
     daughter_term, daughter_term_prime = term, term_prime
@@ -123,7 +126,10 @@ def U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2, alpha1,
 def Ukq(k, q, n, l, nbody, twoSplusOne1, L1, J1, Jz1, twoSplusOne2, L2, J2, Jz2, alpha1 = '', alpha2 = ''):         #alpha1 and alpha2 are optional parameters for some configurations but mandatory 
                                                                                                                     #to determine the cfp to use when more than one term is possible for a pair of L and S
     matrix_element, L, S, Lprime, Sprime = U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2,alpha1,alpha2)    #loading the matrix element for the desired terms and configuration
+
+    # print(f'L = {L}, S = {S}, Lprime = {Lprime}, Sprime = {Sprime}') #print the quantum numbers to check if the function is working properly
     J = J1 ; Jprime = J2 ; Jz = Jz1 ; Jzprime = Jz2                #homogeneous writing of the quantum numbers
+    # print(f'J = {J}, Jprime = {Jprime}, Jz = {Jz}, Jzprime = {Jzprime}') #print the quantum numbers to check if the function is working properly
     Uk = ((-1)**Rational(S+L+Jprime+k))*sqrt((int(2*J)+1)*(int(2*Jprime)+1),evaluate = False)*wigner_6j(J, Jprime,k, Lprime,L,S)* matrix_element #Adding J, following Wybourne 6-5
     Ukq = ((-1)**Rational(J-Jz))*wigner_3j(J,k,Jprime,-Jz,q,Jzprime)*Uk         #Adding Jz, following Wybourne 6-4
     return Ukq

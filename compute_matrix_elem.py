@@ -1,44 +1,47 @@
 from cfp_functions import *
-from numpy.linalg import eig
+from numpy.linalg import eigh
 
-
+# defines ground state of Er3+ ion
 n = 11; l = 3; nbody = 1;
 twoSplusOne1, L1, J1 = 4, 'I', 15/2
 twoSplusOne2, L2, J2 = 4, 'I', 15/2
 
-A20 = 0.057024
-A40 = -0.210584
-A43 = 0.019893
-A60 = -0.130734
-A63 = 0.110532
-A66 = -0.038125
+# defines the crystal field parameters
+# here for Er3+ in tetragonal symmetry, C3 // z, C2 // y
+# from Gaudet et al. 2017 (10.1103/PhysRevB.97.024415)
+k_cef = [2,4,6]; q_cef = [-6,-3,0,3,6]
+B20 = 0.0541
+B40 = 0.3508
+B43 = 0.1248
+B60 = 0.1100
+B63 = -0.0737
+B66 = 0.1251
 
-A = {2 : {0 : A20},
-     4 : {-3: -A43, 0 : A40, 3 : A43},
-     6 : {-6: A66, -3: -A63, 0 : A60, 3 : A63, 6 : A66}}
+B = {2 : {0 : B20},
+     4 : {-3: -B43, 0 : B40, 3 : B43},
+     6 : {-6: B66, -3: -B63, 0 : B60, 3 : B63, 6 : B66}}
 
 
-J_list = [15/2]
+Jz_list = np.arange(-J1,J1+1)
 
-hamiltonian = np.zeros((len(J_list)*len(np.arange(-max(J_list),max(J_list)+1)),(len(J_list)*len(np.arange(-max(J_list),max(J_list)+1)))))
+hamiltonian = np.zeros((len(Jz_list),len(Jz_list)))
 
-for k in [2,4,6]:
-    for q in [-6,-3,0,3,6]:
-        i = 0
-        for iJ1, J1 in enumerate(J_list):
-            i+=len(np.arange(-J1, J1+1))
-            for iJ2,J2 in enumerate(J_list):
-                for iJz1, Jz1 in enumerate(np.arange(-J1, J1+1)):
-                    for iJz2, Jz2 in enumerate(np.arange(-J2, J2+1)):
-                        value = Ukq(k,q,n,l,nbody,twoSplusOne1,L1,J1,Jz1,twoSplusOne2,L2,J2,Jz2).evalf()*C_ME(k,l).evalf()
-                        try:
-                            matrix_element = value*A[k][q]
-                        except:
-                            matrix_element = 0
-                        hamiltonian[iJ1*len(np.arange(-J1, J1+1))+iJz1,iJ2*len(np.arange(-J2, J2+1))+iJz2] += matrix_element
-                
-eigenvalues, eigenvectors = eig(hamiltonian)
+for k in k_cef:
+    for q in q_cef:
+        for iJz1, Jz1 in enumerate(np.arange(-J1, J1+1)):
+            for iJz2, Jz2 in enumerate(np.arange(-J2, J2+1)):
+                value = Ukq(k,q,n,l,nbody,twoSplusOne1,L1,J1,Jz1,twoSplusOne2,L2,J2,Jz2).evalf()*C_ME(k,l).evalf()
+                try:
+                    matrix_element = value*B[k][q]
+                except:
+                    matrix_element = 0
+                hamiltonian[iJz1,iJz2] += matrix_element
+
+# if one wants to print the eigenvalues (in meV)
+# relative to the lowest one
+eigenvalues, eigenvectors = eigh(hamiltonian)
+eigenvalues = (eigenvalues - eigenvalues[0])*1000
 print('Eigenvalues in meV:  ')
-for eigenvalue in sorted(eigenvalues):
-    egvl = eigenvalue - min(eigenvalues)
-    print(f'{egvl*1000:03.15f}')
+for eigenvalue in eigenvalues:
+    print(f'{eigenvalue:03.2f}')
+

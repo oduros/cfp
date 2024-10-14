@@ -125,7 +125,7 @@ def Ukq(k, q, n, l, nbody, twoSplusOne1, L1, J1, Jz1, twoSplusOne2, L2, J2, Jz2,
                                                                                                                     #to determine the cfp to use when more than one term is possible for a pair of L and S
     matrix_element, L, S, Lprime, Sprime = U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2,alpha1,alpha2)    #loading the matrix element for the desired terms and configuration
     # print(f'L = {L}, S = {S}, Lprime = {Lprime}, Sprime = {Sprime}') #print the quantum numbers, if needed
-    J = J1 ; Jprime = J2 ; Jz = Jz1 ; Jzprime = Jz2                #homogeneous writing of the quantum numbers
+    J = sympify(J1); Jprime = sympify(J2) ; Jz = sympify(Jz1) ; Jzprime = sympify(Jz2); k = sympify(k)                  #homogeneous writing of the quantum numbers
     # print(f'J = {J}, Jprime = {Jprime}, Jz = {Jz}, Jzprime = {Jzprime}') #print the quantum numbers, if needed
     Uk = sympify((-1)**Rational(S+L+Jprime+k))*sqrt((int(2*J)+1)*(int(2*Jprime)+1),evaluate = False)*wigner_6j(J, Jprime,k, Lprime,L,S)* matrix_element #Adding J, following Wybourne 6-5
     Ukq = sympify((-1)**Rational(J-Jz))*wigner_3j(J,k,Jprime,-Jz,q,Jzprime)*Uk         #Adding Jz, following Wybourne 6-4

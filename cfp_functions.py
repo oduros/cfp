@@ -20,25 +20,23 @@ def readLSalpha(term): #returns L, S and if applicable, J for a given spectrosco
     elif Lstr == 'G': L=4
     elif Lstr == 'H': L=5
     elif Lstr == 'I': L=6
-    elif Lstr == 'J': L=7
-    elif Lstr == 'K': L=8
-    elif Lstr == 'L': L=9
-    elif Lstr == 'M': L=10
-    elif Lstr == 'N': L=11
-    elif Lstr == 'O': L=12
-    elif Lstr == 'P': L=13
-    elif Lstr == 'Q': L=14
-    elif Lstr == 'R': L=15
-    elif Lstr == 'S': L=16
-    elif Lstr == 'T': L=17
-    elif Lstr == 'U': L=18
-    elif Lstr == 'V': L=19
-    elif Lstr == 'W': L=20
-    elif Lstr == 'X': L=21
-    elif Lstr == 'Y': L=22
-    elif Lstr == 'Z': L=23
+    elif Lstr == 'K': L=7
+    elif Lstr == 'L': L=8
+    elif Lstr == 'M': L=9
+    elif Lstr == 'N': L=10
+    elif Lstr == 'O': L=11
+    elif Lstr == 'Q': L=12
+    elif Lstr == 'R': L=13
+    elif Lstr == 'T': L=14
+    elif Lstr == 'U': L=15
+    elif Lstr == 'V': L=16
+    elif Lstr == 'W': L=17
+    elif Lstr == 'X': L=18
+    elif Lstr == 'Y': L=19
+    elif Lstr == 'Z': L=20
     else: print('No L value found for term',term)
-    return L,(S-1)/2, alpha
+    return sympify(L),Rational((S-1),2), sympify(alpha)
+
 def readpair(pair):
     coma = pair.index(',')
     parent1 = pair[0:coma]
@@ -79,7 +77,7 @@ def U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2, alpha1,
 
     if w == 1:
         matrix_element = int(1)                                     #when filling is w = 1 (1 electron or 1 hole in the orbital), the matrix element is reduced to 1
-         
+
     else:
         sum = sympify(0)                                            #creating the sum on which will be summed the computations of CFP, following Cowan 11.53
                                                                     #Using sympify() from SymPy to be sure the output will be a symbolic quantity
@@ -120,20 +118,16 @@ def U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2, alpha1,
         matrix_element = matrix_element * (1 / sympify(-(-1) ** k))             #Cowan 11.58 for more than half-filled shells
     else:                                                                       #If not more than half-filled, the value does not change
         matrix_element = matrix_element
-    return matrix_element, L, S, Lprime, Sprime                                     #The matrix element is here returned along L, S, L' and S' for later purpose, especially in function Ukq() defined below   
+    return matrix_element, L, S, Lprime, Sprime                                     #The matrix element is here returned along L, S, L' and S' for later purpose, especially in function Ukq() defined below
 
 
 def Ukq(k, q, n, l, nbody, twoSplusOne1, L1, J1, Jz1, twoSplusOne2, L2, J2, Jz2, alpha1 = '', alpha2 = ''):         #alpha1 and alpha2 are optional parameters for some configurations but mandatory 
                                                                                                                     #to determine the cfp to use when more than one term is possible for a pair of L and S
     matrix_element, L, S, Lprime, Sprime = U_matrix_element(k, n, l, nbody, twoSplusOne1, L1, twoSplusOne2, L2,alpha1,alpha2)    #loading the matrix element for the desired terms and configuration
-
-    # print(f'L = {L}, S = {S}, Lprime = {Lprime}, Sprime = {Sprime}') #print the quantum numbers to check if the function is working properly
+    # print(f'L = {L}, S = {S}, Lprime = {Lprime}, Sprime = {Sprime}') #print the quantum numbers, if needed
     J = J1 ; Jprime = J2 ; Jz = Jz1 ; Jzprime = Jz2                #homogeneous writing of the quantum numbers
-    # print(f'J = {J}, Jprime = {Jprime}, Jz = {Jz}, Jzprime = {Jzprime}') #print the quantum numbers to check if the function is working properly
-    Uk = ((-1)**Rational(S+L+Jprime+k))*sqrt((int(2*J)+1)*(int(2*Jprime)+1),evaluate = False)*wigner_6j(J, Jprime,k, Lprime,L,S)* matrix_element #Adding J, following Wybourne 6-5
-    Ukq = ((-1)**Rational(J-Jz))*wigner_3j(J,k,Jprime,-Jz,q,Jzprime)*Uk         #Adding Jz, following Wybourne 6-4
+    # print(f'J = {J}, Jprime = {Jprime}, Jz = {Jz}, Jzprime = {Jzprime}') #print the quantum numbers, if needed
+    Uk = sympify((-1)**Rational(S+L+Jprime+k))*sqrt((int(2*J)+1)*(int(2*Jprime)+1),evaluate = False)*wigner_6j(J, Jprime,k, Lprime,L,S)* matrix_element #Adding J, following Wybourne 6-5
+    Ukq = sympify((-1)**Rational(J-Jz))*wigner_3j(J,k,Jprime,-Jz,q,Jzprime)*Uk         #Adding Jz, following Wybourne 6-4
     return Ukq
 
-def Ukq_float(k, q, n, l, nbody, twoSplusOne1, L1, J1, Jz1, twoSplusOne2, L2, J2, Jz2, alpha1 = '', alpha2 = ''):
-    Ukq_ft = Ukq(k, q, n, l, nbody, twoSplusOne1, L1, J1, Jz1, twoSplusOne2, L2, J2, Jz2, alpha1, alpha2)
-    return Ukq_ft.evalf()
